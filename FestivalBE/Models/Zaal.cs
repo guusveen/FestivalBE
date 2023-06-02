@@ -6,7 +6,7 @@
         public string? Naam { get; set; }
         public int? Capaciteit { get; set; }
         public int? LocatieId { get; set; }
-        public Locatie? Locatie { get; set; }
-        public ICollection<Voorstelling>? Voorstellingen { get; set; }
+        public virtual Locatie? Locatie { get; set; }
+        public virtual ICollection<Voorstelling>? Voorstellingen { get; set; }
     }
 }

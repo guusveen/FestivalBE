@@ -4,8 +4,8 @@
     {
         public int? Id { get; set; }
         public string? Adres { get; set; }
-        public ICollection<Zaal>? Zalen { get; set; }
-        public ICollection<Festival>? Festivals { get; set; }
+        public virtual ICollection<Zaal>? Zalen { get; set; }
+        public virtual ICollection<Festival>? Festivals { get; set; }
 
     }
 

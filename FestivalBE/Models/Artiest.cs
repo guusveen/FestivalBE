@@ -8,6 +8,6 @@
         public string? Afbeelding { get; set; }
         public string? Type { get; set; }
         public string? Genre { get; set; }
-        public ICollection<Voorstelling>? Voorstellingen { get; set; }
+        public virtual ICollection<Voorstelling>? Voorstellingen { get; set; }
     }
 }

@@ -17,9 +17,9 @@
         public int? OrganisatorId { get; set; }
 
         // Navigation properties
-        public Organisator? Organisator { get; set; }
-        public ICollection<Voorstelling>? Voorstellingen { get; set; }
-        public ICollection<Locatie>? Locaties { get; set; }
+        public virtual Organisator? Organisator { get; set; }
+        public virtual ICollection<Voorstelling>? Voorstellingen { get; set; }
+        public virtual ICollection<Locatie>? Locaties { get; set; }
 
     }
 }

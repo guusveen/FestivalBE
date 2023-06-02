@@ -9,10 +9,10 @@ namespace FestivalBE.Models
         public string? Adres { get; set; }
         public DateTime? Geboortedatum { get; set; }
         public string? Email { get; set; }
-        public ICollection<VoorstellingFavoriet>? VoorstellingFavorieten { get; set; }
-        public ICollection<ArtiestFavoriet>? ArtiestFavorieten { get; set; }
-        public ICollection<Ticket>? Tickets { get; set; }
-        public ICollection<Rating>? Ratings { get; set; }
+        public virtual ICollection<VoorstellingFavoriet>? VoorstellingFavorieten { get; set; }
+        public virtual ICollection<ArtiestFavoriet>? ArtiestFavorieten { get; set; }
+        public virtual ICollection<Ticket>? Tickets { get; set; }
+        public virtual ICollection<Rating>? Ratings { get; set; }
     }
 
 }

@@ -6,6 +6,6 @@
         public string? Name { get; set; }
 
         // Navigation properties
-        public ICollection<Festival>? Festivals { get; set; }
+        public virtual ICollection<Festival>? Festivals { get; set; }
     }
 }

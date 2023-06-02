@@ -9,11 +9,11 @@
         public DateTime? StartTijd { get; set; }
         public DateTime? EindTijd { get; set; }
         public int? ZaalId { get; set; }
-        public Zaal? Zaal { get; set; }
+        public virtual Zaal? Zaal { get; set; }
         public int? ArtiestId { get; set; }
-        public Artiest? Artiest { get; set; }
+        public virtual Artiest? Artiest { get; set; }
         public int? FestivalId { get; set; }
-        public Festival? Festival { get; set; }
-        public ICollection<Rating>? Ratings { get; set; }
+        public virtual Festival? Festival { get; set; }
+        public virtual ICollection<Rating>? Ratings { get; set; }
     }
 }
