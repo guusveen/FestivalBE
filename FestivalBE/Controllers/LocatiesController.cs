@@ -28,7 +28,7 @@ namespace FestivalBE.Controllers
           {
               return NotFound();
           }
-            return await _context.Locaties.ToListAsync();
+            return await _context.Locaties.Include(l => l.Zalen).ToListAsync();
         }
 
         // GET: api/Locaties/5
@@ -45,6 +45,8 @@ namespace FestivalBE.Controllers
             {
                 return NotFound();
             }
+
+            _context.Entry(locatie).Collection(l => l.Zalen).Load();
 
             return locatie;
         }

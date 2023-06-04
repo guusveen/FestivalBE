@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FestivalBE.Models;
+using Microsoft.CodeAnalysis;
 
 namespace FestivalBE.Controllers
 {
@@ -28,18 +29,23 @@ namespace FestivalBE.Controllers
           {
               return NotFound();
           }
-            return await _context.Festivals.ToListAsync();
+            return await _context.Festivals.Include(f => f.Locaties)
+        .ThenInclude(l => l.Zalen).Include(f => f.Voorstellingen).ToListAsync();
         }
 
-        // GET: api/Festivals/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Festival>> GetFestival(int? id)
         {
-          if (_context.Festivals == null)
-          {
-              return NotFound();
-          }
-            var festival = await _context.Festivals.FindAsync(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var festival = await _context.Festivals
+                .Include(f => f.Locaties)
+                    .ThenInclude(locatie => locatie.Zalen)
+                .Include(f => f.Voorstellingen)
+                .FirstOrDefaultAsync(f => f.Id == id);
 
             if (festival == null)
             {
@@ -48,6 +54,7 @@ namespace FestivalBE.Controllers
 
             return festival;
         }
+
 
         // PUT: api/Festivals/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -59,7 +66,44 @@ namespace FestivalBE.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(festival).State = EntityState.Modified;
+            // Get the existing festival from the database
+            var existingFestival = await _context.Festivals
+                .Include(f => f.Locaties) // Include the existing locaties
+                .FirstOrDefaultAsync(f => f.Id == id);
+
+            if (existingFestival == null)
+            {
+                return NotFound();
+            }
+
+            // Update the properties of the existing festival with the new values
+            existingFestival.Naam = festival.Naam;
+            existingFestival.Beschrijving = festival.Beschrijving;
+            existingFestival.BannerAfbeelding = festival.BannerAfbeelding;
+            existingFestival.Type = festival.Type;
+            existingFestival.Genre = festival.Genre;
+            existingFestival.LeeftijdscategorieVan = festival.LeeftijdscategorieVan;
+            existingFestival.LeeftijdscategorieTot = festival.LeeftijdscategorieTot;
+            existingFestival.StartDatum = festival.StartDatum;
+            existingFestival.EindDatum = festival.EindDatum;
+
+            // Remove locaties that are no longer selected
+            var removedLocaties = existingFestival.Locaties
+                .Where(locatie => !festival.Locaties.Any(l => l.Id == locatie.Id))
+                .ToList();
+            foreach (var removedLocatie in removedLocaties)
+            {
+                existingFestival.Locaties.Remove(removedLocatie);
+            }
+
+            // Add newly selected locaties
+            foreach (var newLocatie in festival.Locaties)
+            {
+                if (!existingFestival.Locaties.Any(l => l.Id == newLocatie.Id))
+                {
+                    existingFestival.Locaties.Add(newLocatie);
+                }
+            }
 
             try
             {
@@ -79,6 +123,7 @@ namespace FestivalBE.Controllers
 
             return NoContent();
         }
+
 
         // POST: api/Festivals
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
