@@ -49,6 +49,26 @@ namespace FestivalBE.Controllers
             return artiest;
         }
 
+        // GET: api/Artiesten/AvailableArtiesten/{voorstellingId}
+        [HttpGet("AvailableArtiesten/{voorstellingId}")]
+        public async Task<ActionResult<IEnumerable<Artiest>>> GetAvailableArtiesten(int voorstellingId)
+        {
+            var voorstelling = await _context.Voorstellingen.FindAsync(voorstellingId);
+
+            if (voorstelling == null)
+            {
+                return NotFound();
+            }
+
+            // Get the artists who have no other voorstellingen at the same time
+            var availableArtiesten = await _context.Artiesten
+                .Where(artiest => artiest.Voorstellingen.All(v => v.StartTijd >= voorstelling.EindTijd || v.EindTijd <= voorstelling.StartTijd))
+                .ToListAsync();
+
+            return availableArtiesten;
+        }
+
+
         // PUT: api/Artiesten/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

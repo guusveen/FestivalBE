@@ -24,22 +24,25 @@ namespace FestivalBE.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Voorstelling>>> GetVoorstellingen()
         {
-          if (_context.Voorstellingen == null)
-          {
-              return NotFound();
-          }
-            return await _context.Voorstellingen.ToListAsync();
+            if (_context.Voorstellingen == null)
+            {
+                return NotFound();
+            }
+
+            // Load the Artiest property along with Voorstelling
+            return await _context.Voorstellingen.Include(v => v.Artiest).Include(v => v.Zaal).ToListAsync();
         }
 
         // GET: api/Voorstellings/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Voorstelling>> GetVoorstelling(int id)
         {
-          if (_context.Voorstellingen == null)
-          {
-              return NotFound();
-          }
-            var voorstelling = await _context.Voorstellingen.FindAsync(id);
+            if (_context.Voorstellingen == null)
+            {
+                return NotFound();
+            }
+
+            var voorstelling = await _context.Voorstellingen.Include(v => v.Artiest).Include(v => v.Zaal).FirstOrDefaultAsync(v => v.Id == id);
 
             if (voorstelling == null)
             {
@@ -48,6 +51,7 @@ namespace FestivalBE.Controllers
 
             return voorstelling;
         }
+
 
         // PUT: api/Voorstellings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

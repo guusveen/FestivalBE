@@ -44,6 +44,7 @@ namespace FestivalBE.Controllers
             var festival = await _context.Festivals
                 .Include(f => f.Locaties)
                     .ThenInclude(locatie => locatie.Zalen)
+                        .ThenInclude(zaal => zaal.Voorstellingen)
                 .Include(f => f.Voorstellingen)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
