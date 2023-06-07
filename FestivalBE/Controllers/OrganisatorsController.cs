@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FestivalBE.Models;
+using FestivalBE.Helpers;
+using FestivalBE.DTO;
 
 namespace FestivalBE.Controllers
 {
@@ -18,6 +15,79 @@ namespace FestivalBE.Controllers
         public OrganisatorsController(FestiFactDbContext context)
         {
             _context = context;
+        }
+
+        // POST: api/Organisator/Register
+        [HttpPost("Register")]
+        public async Task<ActionResult<OrganisatorDTO>> Register(Organisator organisator)
+        {
+            if (_context.Organisators == null)
+            {
+                return Problem("Entity set 'FestiFactDbContext.Organisators' is null.");
+            }
+
+            // Validate the registration model
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Check if the email is already registered
+            if (_context.Organisators.Any(o => o.Email == organisator.Email))
+            {
+                return Conflict("Email already registered.");
+            }
+
+            // Hash the password
+            organisator.Password = PasswordHasher.HashPassword(organisator.Password);
+
+            // Create a new Organisator entity
+            _context.Organisators.Add(organisator);
+            await _context.SaveChangesAsync();
+
+            // Create an OrganisatorDto without the password
+            var organisatorDto = new OrganisatorDTO
+            {
+                Id = organisator.Id,
+                Email = organisator.Email,
+                Name = organisator.Name
+            };
+
+            return CreatedAtAction("GetOrganisator", new { id = organisatorDto.Id }, organisatorDto);
+        }
+
+        // POST: api/Organisator/Login
+        [HttpPost("Login")]
+        public async Task<ActionResult<OrganisatorDTO>> Login(Organisator organisator)
+        {
+            if (_context.Organisators == null)
+            {
+                return Problem("Entity set 'FestiFactDbContext.Organisators' is null.");
+            }
+
+            // Retrieve the organisator by email
+            var organisatorDb = await _context.Organisators.FirstOrDefaultAsync(o => o.Email == organisator.Email);
+
+            if (organisatorDb == null)
+            {
+                return NotFound("Organisator not found.");
+            }
+
+            // Verify the password
+            if (PasswordHasher.HashPassword(organisator.Password) != organisatorDb.Password)
+            {
+                return Unauthorized("Invalid credentials.");
+            }
+
+            // Create an OrganisatorDto without the password
+            var organisatorDto = new OrganisatorDTO
+            {
+                Id = organisatorDb.Id,
+                Email = organisatorDb.Email,
+                Name = organisatorDb.Name
+            };
+
+            return Ok(organisatorDto);
         }
 
         // GET: api/Organisators

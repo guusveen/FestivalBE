@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FestivalBE.Models;
+using FestivalBE.DTO;
+using FestivalBE.Helpers;
 
 namespace FestivalBE.Controllers
 {
@@ -18,6 +20,91 @@ namespace FestivalBE.Controllers
         public BezoekersController(FestiFactDbContext context)
         {
             _context = context;
+        }
+
+        // POST: api/Bezoekers/Register
+        [HttpPost("Register")]
+        public async Task<ActionResult<BezoekerDTO>> Register(Bezoeker bezoeker)
+        {
+            if (_context.Bezoekers == null)
+            {
+                return Problem("Entity set 'FestiFactDbContext.Bezoekers' is null.");
+            }
+
+            // Validate the registration model
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Check if the email is already registered
+            if (_context.Bezoekers.Any(b => b.Email == bezoeker.Email))
+            {
+                return Conflict("Email already registered.");
+            }
+
+            // Hash the password
+            bezoeker.Password = PasswordHasher.HashPassword(bezoeker.Password);
+
+            // Create a new Bezoeker entity
+            _context.Bezoekers.Add(bezoeker);
+            await _context.SaveChangesAsync();
+
+            // Create a BezoekerDto without the password
+            var bezoekerDto = new BezoekerDTO
+            {
+                Id = bezoeker.Id,
+                Email = bezoeker.Email,
+                Naam = bezoeker.Naam,
+                Adres = bezoeker.Adres,
+                Geboortedatum = bezoeker.Geboortedatum,
+                VoorstellingFavorieten = bezoeker.VoorstellingFavorieten,
+                ArtiestFavorieten = bezoeker.ArtiestFavorieten,
+                Tickets = bezoeker.Tickets,
+                Ratings = bezoeker.Ratings
+            };
+
+            return CreatedAtAction("GetBezoeker", new { id = bezoekerDto.Id }, bezoekerDto);
+        }
+
+        // POST: api/Bezoekers/Login
+        [HttpPost("Login")]
+        public async Task<ActionResult<BezoekerDTO>> Login(Bezoeker bezoeker)
+        {
+            if (_context.Bezoekers == null)
+            {
+                return Problem("Entity set 'FestiFactDbContext.Bezoekers' is null.");
+            }
+
+            // Retrieve the bezoeker by email
+            var bezoekerDb = await _context.Bezoekers.FirstOrDefaultAsync(b => b.Email == bezoeker.Email);
+
+            if (bezoekerDb == null)
+            {
+                return NotFound("Bezoeker not found.");
+            }
+
+            // Verify the password
+            if (PasswordHasher.HashPassword(bezoeker.Password) != bezoekerDb.Password)
+            {
+                return Unauthorized("Invalid credentials.");
+            }
+
+            // Create a BezoekerDto without the password
+            var bezoekerDto = new BezoekerDTO
+            {
+                Id = bezoekerDb.Id,
+                Email = bezoekerDb.Email,
+                Naam = bezoekerDb.Naam,
+                Adres = bezoekerDb.Adres,
+                Geboortedatum = bezoekerDb.Geboortedatum,
+                VoorstellingFavorieten = bezoekerDb.VoorstellingFavorieten,
+                ArtiestFavorieten = bezoekerDb.ArtiestFavorieten,
+                Tickets = bezoekerDb.Tickets,
+                Ratings = bezoekerDb.Ratings
+            };
+
+            return Ok(bezoekerDto);
         }
 
         // GET: api/Bezoekers
