@@ -125,7 +125,6 @@ namespace FestivalBE.Controllers
         [HttpPost("CreateTicket/{bezoekerId}/{voorstellingId}")]
         public async Task<ActionResult<Ticket>> CreateTicket(int bezoekerId, int voorstellingId)
         {
-            // Check if the bezoekerId and voorstellingId are valid
 
             // Create the ticket
             Ticket ticket = new Ticket

@@ -30,7 +30,10 @@ namespace FestivalBE.Controllers
               return NotFound();
           }
             return await _context.Festivals.Include(f => f.Locaties)
-        .ThenInclude(l => l.Zalen).Include(f => f.Voorstellingen).ToListAsync();
+                .ThenInclude(l => l.Zalen)
+            .Include(f => f.Voorstellingen)
+                .ThenInclude(v => v.Ratings)
+            .ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -46,6 +49,9 @@ namespace FestivalBE.Controllers
                     .ThenInclude(locatie => locatie.Zalen)
                         .ThenInclude(zaal => zaal.Voorstellingen)
                 .Include(f => f.Voorstellingen)
+                    .ThenInclude(V => V.Zaal)
+                .Include(f => f.Voorstellingen)
+                    .ThenInclude(voorstelling => voorstelling.Ratings)
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (festival == null)

@@ -15,5 +15,6 @@
         public int? FestivalId { get; set; }
         public virtual Festival? Festival { get; set; }
         public virtual ICollection<Rating>? Ratings { get; set; }
+        public virtual ICollection<Ticket>? Tickets { get; set; }
     }
 }
