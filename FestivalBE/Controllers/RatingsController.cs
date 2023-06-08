@@ -49,6 +49,25 @@ namespace FestivalBE.Controllers
             return rating;
         }
 
+        // GET: api/Ratings/{bezoekerId}/{voorstellingId}
+        [HttpGet("{bezoekerId}/{voorstellingId}")]
+        public async Task<ActionResult<Rating>> GetRating(int? bezoekerId, int? voorstellingId)
+        {
+            if (bezoekerId == null || voorstellingId == null)
+            {
+                return BadRequest();
+            }
+
+            var rating = await _context.Ratings.FirstOrDefaultAsync(r => r.BezoekerId == bezoekerId && r.VoorstellingId == voorstellingId);
+
+            if (rating == null)
+            {
+                return NotFound();
+            }
+
+            return rating;
+        }
+
         // PUT: api/Ratings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

@@ -49,6 +49,19 @@ namespace FestivalBE.Controllers
             return artiestFavoriet;
         }
 
+        // GET: api/ArtiestFavorieten/FavoriteArtiesten/{bezoekerId}
+        [HttpGet("FavoriteArtiesten/{bezoekerId}")]
+        public async Task<ActionResult<IEnumerable<Artiest>>> GetFavoriteArtiesten(int bezoekerId)
+        {
+            var artiestFavorieten = await _context.ArtiestFavorieten
+                .Where(af => af.BezoekerId == bezoekerId)
+                .Include(af => af.Artiest)
+                .Select(af => af.Artiest)
+                .ToListAsync();
+
+            return artiestFavorieten;
+        }
+
         // PUT: api/ArtiestFavorieten/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -113,6 +126,34 @@ namespace FestivalBE.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // DELETE: api/ArtiestFavorieten/{bezoekerId}/{artiestId}
+        [HttpDelete("{bezoekerId}/{artiestId}")]
+        public async Task<IActionResult> DeleteArtiestFavoriet(int bezoekerId, int artiestId)
+        {
+            if (_context.ArtiestFavorieten == null)
+            {
+                return NotFound();
+            }
+
+            var artiestFavoriet = await _context.ArtiestFavorieten.FirstOrDefaultAsync(af => af.BezoekerId == bezoekerId && af.ArtiestId == artiestId);
+            if (artiestFavoriet == null)
+            {
+                return NotFound();
+            }
+
+            _context.ArtiestFavorieten.Remove(artiestFavoriet);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpGet("HasFavorite/{bezoekerId}/{artiestId}")]
+        public async Task<ActionResult<bool>> HasFavorite(int bezoekerId, int artiestId)
+        {
+            var artiestFavoriet = await _context.ArtiestFavorieten.FirstOrDefaultAsync(af => af.BezoekerId == bezoekerId && af.ArtiestId == artiestId);
+            return artiestFavoriet != null;
         }
 
         private bool ArtiestFavorietExists(int? id)

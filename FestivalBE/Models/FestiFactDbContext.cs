@@ -18,5 +18,27 @@ namespace FestivalBE.Models
         public DbSet<ArtiestFavoriet> ArtiestFavorieten { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => new { t.BezoekerId, t.VoorstellingId })
+                .IsUnique();
+
+            modelBuilder.Entity<ArtiestFavoriet>()
+                .HasIndex(af => new { af.BezoekerId, af.ArtiestId })
+                .IsUnique();
+
+            modelBuilder.Entity<VoorstellingFavoriet>()
+                .HasIndex(vf => new { vf.BezoekerId, vf.VoorstellingId })
+                .IsUnique();
+
+            modelBuilder.Entity<Rating>()
+                .HasIndex(r => new { r.BezoekerId, r.VoorstellingId })
+                .IsUnique();
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

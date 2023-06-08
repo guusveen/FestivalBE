@@ -4,6 +4,7 @@ using FestivalBE.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FestivalBE.Migrations
 {
     [DbContext(typeof(FestiFactDbContext))]
-    partial class FestiFactDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230607191012_UniqueConstraintForVoorstellingFavoriet")]
+    partial class UniqueConstraintForVoorstellingFavoriet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,9 +74,7 @@ namespace FestivalBE.Migrations
 
                     b.HasIndex("ArtiestId");
 
-                    b.HasIndex("BezoekerId", "ArtiestId")
-                        .IsUnique()
-                        .HasFilter("[BezoekerId] IS NOT NULL AND [ArtiestId] IS NOT NULL");
+                    b.HasIndex("BezoekerId");
 
                     b.ToTable("ArtiestFavorieten");
                 });
@@ -218,11 +219,9 @@ namespace FestivalBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VoorstellingId");
+                    b.HasIndex("BezoekerId");
 
-                    b.HasIndex("BezoekerId", "VoorstellingId")
-                        .IsUnique()
-                        .HasFilter("[BezoekerId] IS NOT NULL AND [VoorstellingId] IS NOT NULL");
+                    b.HasIndex("VoorstellingId");
 
                     b.ToTable("Ratings");
                 });
@@ -243,11 +242,9 @@ namespace FestivalBE.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("VoorstellingId");
+                    b.HasIndex("BezoekerId");
 
-                    b.HasIndex("BezoekerId", "VoorstellingId")
-                        .IsUnique()
-                        .HasFilter("[BezoekerId] IS NOT NULL AND [VoorstellingId] IS NOT NULL");
+                    b.HasIndex("VoorstellingId");
 
                     b.ToTable("Tickets");
                 });

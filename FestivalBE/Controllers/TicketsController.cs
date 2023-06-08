@@ -49,6 +49,32 @@ namespace FestivalBE.Controllers
             return ticket;
         }
 
+        // GET: api/Tickets/CheckTicket/{bezoekerId}/{voorstellingId}
+        [HttpGet("CheckTicket/{bezoekerId}/{voorstellingId}")]
+        public async Task<ActionResult<bool>> CheckTicket(int bezoekerId, int voorstellingId)
+        {
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.BezoekerId == bezoekerId && t.VoorstellingId == voorstellingId);
+
+            if (ticket != null)
+            {
+                // User has a ticket for the specified show
+                return true;
+            }
+            else
+            {
+                // User does not have a ticket for the specified show
+                return false;
+            }
+        }
+
+        // GET: api/Tickets/CountBoughtTickets/{voorstellingId}
+        [HttpGet("CountBoughtTickets/{voorstellingId}")]
+        public async Task<ActionResult<int>> CountBoughtTickets(int voorstellingId)
+        {
+            var count = await _context.Tickets.CountAsync(t => t.VoorstellingId == voorstellingId);
+            return count;
+        }
+
         // PUT: api/Tickets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -89,6 +115,25 @@ namespace FestivalBE.Controllers
           {
               return Problem("Entity set 'FestiFactDbContext.Tickets'  is null.");
           }
+            _context.Tickets.Add(ticket);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetTicket", new { id = ticket.Id }, ticket);
+        }
+
+        // POST: api/Tickets/CreateTicket
+        [HttpPost("CreateTicket/{bezoekerId}/{voorstellingId}")]
+        public async Task<ActionResult<Ticket>> CreateTicket(int bezoekerId, int voorstellingId)
+        {
+            // Check if the bezoekerId and voorstellingId are valid
+
+            // Create the ticket
+            Ticket ticket = new Ticket
+            {
+                BezoekerId = bezoekerId,
+                VoorstellingId = voorstellingId
+            };
+
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
 

@@ -31,6 +31,27 @@ namespace FestivalBE.Controllers
             return await _context.VoorstellingFavorieten.ToListAsync();
         }
 
+        // GET: api/VoorstellingFavorieten/FavoriteVoorstellingen/{Id}
+        [HttpGet("FavoriteVoorstellingen/{Id}")]
+        public async Task<ActionResult<List<Voorstelling>>> GetFavoriteVoorstellingen(string Id)
+        {
+            int bezoekerId;
+            if (!int.TryParse(Id, out bezoekerId))
+            {
+                return BadRequest();
+            }
+
+            var favoriteVoorstellingen = await _context.VoorstellingFavorieten
+                .Include(f => f.Voorstelling)
+                    .ThenInclude(v => v.Zaal)
+                        .ThenInclude(z => z.Locatie)
+                .Where(f => f.BezoekerId == bezoekerId)
+                .Select(f => f.Voorstelling)
+                .ToListAsync();
+
+            return favoriteVoorstellingen;
+        }
+
         // GET: api/VoorstellingFavorieten/5
         [HttpGet("{id}")]
         public async Task<ActionResult<VoorstellingFavoriet>> GetVoorstellingFavoriet(int? id)
@@ -115,9 +136,35 @@ namespace FestivalBE.Controllers
             return NoContent();
         }
 
+        // DELETE: api/VoorstellingFavorieten/{bezoekerId}/{voorstellingId}
+        [HttpDelete("{bezoekerId}/{voorstellingId}")]
+        public async Task<IActionResult> DeleteVoorstellingFavoriet(int bezoekerId, int voorstellingId)
+        {
+            var voorstellingFavoriet = await _context.VoorstellingFavorieten
+                .FirstOrDefaultAsync(f => f.BezoekerId == bezoekerId && f.VoorstellingId == voorstellingId);
+
+            if (voorstellingFavoriet == null)
+            {
+                return NotFound();
+            }
+
+            _context.VoorstellingFavorieten.Remove(voorstellingFavoriet);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private bool VoorstellingFavorietExists(int? id)
         {
             return (_context.VoorstellingFavorieten?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        // GET: api/VoorstellingFavorieten/HasFavorite
+        [HttpGet("HasFavorite/{bezoekerId}/{voorstellingId}")]
+        public bool HasFavorite(int bezoekerId, int voorstellingId)
+        {
+            var voorstellingfavorieten = _context.VoorstellingFavorieten.Any(f => f.BezoekerId == bezoekerId && f.VoorstellingId == voorstellingId);
+            return voorstellingfavorieten;
         }
     }
 }

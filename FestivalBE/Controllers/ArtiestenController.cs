@@ -68,7 +68,6 @@ namespace FestivalBE.Controllers
             return availableArtiesten;
         }
 
-
         // PUT: api/Artiesten/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
